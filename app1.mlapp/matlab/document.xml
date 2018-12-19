@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:pStyle w:val="code"/></w:pPr><w:r><w:t><![CDATA[classdef app1 < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        AudioEqualizerUIFigure   matlab.ui.Figure
+        FilterTypeDropDownLabel  matlab.ui.control.Label
+        FilterTypeDropDown       matlab.ui.control.DropDown
+        BrowseButton             matlab.ui.control.Button
+        SaveOutputButton         matlab.ui.control.Button
+        OutputSamplingFrequencyEditFieldLabel  matlab.ui.control.Label
+        OutputSamplingFrequencyEditField  matlab.ui.control.NumericEditField
+        PlayInputButton          matlab.ui.control.Button
+        PlayOutputButton         matlab.ui.control.Button
+        HzSliderLabel            matlab.ui.control.Label
+        HzSlider                 matlab.ui.control.Slider
+        HzLabel                  matlab.ui.control.Label
+        HzSlider_2               matlab.ui.control.Slider
+        KHzLabel                 matlab.ui.control.Label
+        KHzSlider_11             matlab.ui.control.Slider
+        HzSlider_3Label          matlab.ui.control.Label
+        HzSlider_3               matlab.ui.control.Slider
+        KHzLabel_2               matlab.ui.control.Label
+        KHzSlider_13             matlab.ui.control.Slider
+        KHzLabel_3               matlab.ui.control.Label
+        KHzSlider_14             matlab.ui.control.Slider
+        KHzLabel_4               matlab.ui.control.Label
+        KHzSlider_15             matlab.ui.control.Slider
+        KHzLabel_5               matlab.ui.control.Label
+        KHzSlider_16             matlab.ui.control.Slider
+        KHzLabel_6               matlab.ui.control.Label
+        KHzSlider_17             matlab.ui.control.Slider
+        TabGroup                 matlab.ui.container.TabGroup
+        OutputResponseTab        matlab.ui.container.Tab
+        OutputTimeRespAxes       matlab.ui.control.UIAxes
+        OutputFreqRespAxes       matlab.ui.control.UIAxes
+        PerBandResponseTab       matlab.ui.container.Tab
+        BandDropDownLabel        matlab.ui.control.Label
+        PerBandRespBandSelector  matlab.ui.control.DropDown
+        PerBandTimeRespAxes      matlab.ui.control.UIAxes
+        PerBandFreqRespAxes      matlab.ui.control.UIAxes
+        ApplyChangesButton       matlab.ui.control.Button
+    end
+
+
+    %Constants
+    properties (Access = private)
+        FIR_HAMMING = 1;
+        FIR_RECTANGULAR = 2;
+        FIR_EQUIRIPPLE = 3;
+        FIR_LEAST_SQUARE = 4;
+        IIR_BUTTERWORTH = 5;
+        
+        BAND_RANGE_0_170 = 1;
+        BAND_RANGE_170_310 = 2;
+        BAND_RANGE_310_600 = 3;
+        BAND_RANGE_600_1k = 4;
+        BAND_RANGE_1k_3k = 5;
+        BAND_RANGE_3k_6k = 6;
+        BAND_RANGE_6k_12k = 7;
+        BAND_RANGE_12k_14k = 8;
+        BAND_RANGE_14k_16k = 9;
+    end    
+    
+    %Local Variables
+    properties (Access = private)
+        gains = zeros(1, 9)
+        
+        inputFilePath =  "./.";
+        inputFileName
+        
+        outputFilePath = "./.";
+        outputFileName
+        
+        outputFreq = 44000;
+        
+        currentFilter = 1;
+        
+        perBandGraphBandRange = 1;
+    end
+    
+
+    methods (Access = private)
+
+        % Value changed function: OutputSamplingFrequencyEditField
+        function outputFreqChanged(app, event)
+            app.outputFreq = app.OutputSamplingFrequencyEditField.Value;            
+        end
+
+        % Value changed function: PerBandRespBandSelector
+        function perBandRespBandSelectorChanged(app, event)
+            app.perBandGraphBandRange = app.PerBandRespBandSelector.Value;
+        end
+
+        % Button pushed function: SaveOutputButton
+        function onSaveOutputClicked(app, event)
+            
+        end
+
+        % Button pushed function: PlayOutputButton
+        function onPlayOutputClicked(app, event)
+            
+        end
+
+        % Button pushed function: PlayInputButton
+        function onPlayInputClicked(app, event)
+            
+        end
+
+        % Button pushed function: BrowseButton
+        function onBrowseInputClicked(app, event)
+            
+        end
+
+        % Button pushed function: ApplyChangesButton
+        function applyChanges(app, event)
+            
+        end
+
+        % Value changed function: FilterTypeDropDown
+        function onFilterTypeChanged(app, event)
+            value = app.FilterTypeDropDown.Value;
+            
+        end
+
+        % Value changed function: HzSlider
+        function gainChanged_0_170(app, event)
+            app.gains(app.BAND_RANGE_0_170) = app.HzSlider.Value;           
+        end
+
+        % Value changed function: HzSlider_2
+        function gainChanged_170_310(app, event)
+             app.gains(app.BAND_RANGE_170_310) = app.HzSlider_2.Value;            
+        end
+
+        % Value changed function: HzSlider_3
+        function gainChanged_310_600(app, event)
+             app.gains(app.BAND_RANGE_310_600) = app.HzSlider_3.Value;            
+        end
+
+        % Value changed function: KHzSlider_11
+        function gainChanged_600_1k(app, event)
+             app.gains(app.BAND_RANGE_600_1k) = app.KHzSlider_11.Value;            
+        end
+
+        % Value changed function: KHzSlider_13
+        function gain_changed_1k_3K(app, event)
+             app.gains(app.BAND_RANGE_1k_3k) = app.KHzSlider_13.Value;            
+        end
+
+        % Value changed function: KHzSlider_14
+        function gainChanged_3k_6k(app, event)
+             app.gains(app.BAND_RANGE_3k_6k) = app.KHzSlider_14.Value;            
+        end
+
+        % Value changed function: KHzSlider_15
+        function gainChanged_6k_12K(app, event)
+             app.gains(app.BAND_RANGE_6k_12k) = app.KHzSlider_15.Value;            
+        end
+
+        % Value changed function: KHzSlider_16
+        function gainChanged_12k_14k(app, event)
+             app.gains(app.BAND_RANGE_12k_14k) = app.KHzSlider_16.Value;            
+        end
+
+        % Value changed function: KHzSlider_17
+        function gainChanged_14k_16k(app, event)
+             app.gains(app.BAND_RANGE_14k_16k) = app.KHzSlider_17.Value;
+        end
+    end
+
+    % App initialization and construction
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create AudioEqualizerUIFigure
+            app.AudioEqualizerUIFigure = uifigure;
+            app.AudioEqualizerUIFigure.Color = [1 1 1];
+            app.AudioEqualizerUIFigure.Position = [100 100 780 591];
+            app.AudioEqualizerUIFigure.Name = 'Audio Equalizer';
+
+            % Create FilterTypeDropDownLabel
+            app.FilterTypeDropDownLabel = uilabel(app.AudioEqualizerUIFigure);
+            app.FilterTypeDropDownLabel.HorizontalAlignment = 'right';
+            app.FilterTypeDropDownLabel.Position = [21 564 62 15];
+            app.FilterTypeDropDownLabel.Text = 'Filter Type';
+
+            % Create FilterTypeDropDown
+            app.FilterTypeDropDown = uidropdown(app.AudioEqualizerUIFigure);
+            app.FilterTypeDropDown.Items = {'FIR Hamming', 'FIR Rectangular', 'FIR Equiripple', 'FIR Least Square', 'IIR Butterworth'};
+            app.FilterTypeDropDown.ValueChangedFcn = createCallbackFcn(app, @onFilterTypeChanged, true);
+            app.FilterTypeDropDown.Position = [98 560 100 22];
+            app.FilterTypeDropDown.Value = 'FIR Hamming';
+
+            % Create BrowseButton
+            app.BrowseButton = uibutton(app.AudioEqualizerUIFigure, 'push');
+            app.BrowseButton.ButtonPushedFcn = createCallbackFcn(app, @onBrowseInputClicked, true);
+            app.BrowseButton.Position = [538 560 100 22];
+            app.BrowseButton.Text = 'Browse ';
+
+            % Create SaveOutputButton
+            app.SaveOutputButton = uibutton(app.AudioEqualizerUIFigure, 'push');
+            app.SaveOutputButton.ButtonPushedFcn = createCallbackFcn(app, @onSaveOutputClicked, true);
+            app.SaveOutputButton.Position = [671 560 100 22];
+            app.SaveOutputButton.Text = 'Save Output';
+
+            % Create OutputSamplingFrequencyEditFieldLabel
+            app.OutputSamplingFrequencyEditFieldLabel = uilabel(app.AudioEqualizerUIFigure);
+            app.OutputSamplingFrequencyEditFieldLabel.HorizontalAlignment = 'right';
+            app.OutputSamplingFrequencyEditFieldLabel.Position = [232 564 157 15];
+            app.OutputSamplingFrequencyEditFieldLabel.Text = 'Output Sampling Frequency';
+
+            % Create OutputSamplingFrequencyEditField
+            app.OutputSamplingFrequencyEditField = uieditfield(app.AudioEqualizerUIFigure, 'numeric');
+            app.OutputSamplingFrequencyEditField.ValueChangedFcn = createCallbackFcn(app, @outputFreqChanged, true);
+            app.OutputSamplingFrequencyEditField.Limits = [0 Inf];
+            app.OutputSamplingFrequencyEditField.ValueDisplayFormat = '%.0f';
+            app.OutputSamplingFrequencyEditField.Position = [404 560 100 22];
+            app.OutputSamplingFrequencyEditField.Value = 44000;
+
+            % Create PlayInputButton
+            app.PlayInputButton = uibutton(app.AudioEqualizerUIFigure, 'push');
+            app.PlayInputButton.ButtonPushedFcn = createCallbackFcn(app, @onPlayInputClicked, true);
+            app.PlayInputButton.Position = [538 530 100 22];
+            app.PlayInputButton.Text = 'Play Input';
+
+            % Create PlayOutputButton
+            app.PlayOutputButton = uibutton(app.AudioEqualizerUIFigure, 'push');
+            app.PlayOutputButton.ButtonPushedFcn = createCallbackFcn(app, @onPlayOutputClicked, true);
+            app.PlayOutputButton.Position = [671 530 100 22];
+            app.PlayOutputButton.Text = 'Play Output';
+
+            % Create HzSliderLabel
+            app.HzSliderLabel = uilabel(app.AudioEqualizerUIFigure);
+            app.HzSliderLabel.HorizontalAlignment = 'right';
+            app.HzSliderLabel.Position = [11 332 64 15];
+            app.HzSliderLabel.Text = '0 -  170 Hz';
+
+            % Create HzSlider
+            app.HzSlider = uislider(app.AudioEqualizerUIFigure);
+            app.HzSlider.Limits = [-100 100];
+            app.HzSlider.MajorTicks = [-100 -60 -20 20 60 100];
+            app.HzSlider.MajorTickLabels = {'', '', '', '', '', ''};
+            app.HzSlider.Orientation = 'vertical';
+            app.HzSlider.ValueChangedFcn = createCallbackFcn(app, @gainChanged_0_170, true);
+            app.HzSlider.MinorTicks = [];
+            app.HzSlider.Position = [36 360 3 150];
+
+            % Create HzLabel
+            app.HzLabel = uilabel(app.AudioEqualizerUIFigure);
+            app.HzLabel.HorizontalAlignment = 'right';
+            app.HzLabel.Position = [96 332 75 15];
+            app.HzLabel.Text = '170 - 310 Hz';
+
+            % Create HzSlider_2
+            app.HzSlider_2 = uislider(app.AudioEqualizerUIFigure);
+            app.HzSlider_2.Limits = [-100 100];
+            app.HzSlider_2.MajorTicks = [-100 -60 -20 20 60 100];
+            app.HzSlider_2.MajorTickLabels = {'', '', '', '', '', ''};
+            app.HzSlider_2.Orientation = 'vertical';
+            app.HzSlider_2.ValueChangedFcn = createCallbackFcn(app, @gainChanged_170_310, true);
+            app.HzSlider_2.MinorTicks = [];
+            app.HzSlider_2.Position = [132 360 3 150];
+
+            % Create KHzLabel
+            app.KHzLabel = uilabel(app.AudioEqualizerUIFigure);
+            app.KHzLabel.HorizontalAlignment = 'right';
+            app.KHzLabel.Position = [288 332 72 15];
+            app.KHzLabel.Text = '600 - 1  KHz';
+
+            % Create KHzSlider_11
+            app.KHzSlider_11 = uislider(app.AudioEqualizerUIFigure);
+            app.KHzSlider_11.Limits = [-100 100];
+            app.KHzSlider_11.MajorTicks = [-100 -60 -20 20 60 100];
+            app.KHzSlider_11.MajorTickLabels = {'', '', '', '', '', ''};
+            app.KHzSlider_11.Orientation = 'vertical';
+            app.KHzSlider_11.ValueChangedFcn = createCallbackFcn(app, @gainChanged_600_1k, true);
+            app.KHzSlider_11.MinorTicks = [];
+            app.KHzSlider_11.Position = [321 360 3 150];
+
+            % Create HzSlider_3Label
+            app.HzSlider_3Label = uilabel(app.AudioEqualizerUIFigure);
+            app.HzSlider_3Label.HorizontalAlignment = 'right';
+            app.HzSlider_3Label.Position = [192 332 75 15];
+            app.HzSlider_3Label.Text = '310 - 600 Hz';
+
+            % Create HzSlider_3
+            app.HzSlider_3 = uislider(app.AudioEqualizerUIFigure);
+            app.HzSlider_3.Limits = [-100 100];
+            app.HzSlider_3.MajorTicks = [-100 -60 -20 20 60 100];
+            app.HzSlider_3.MajorTickLabels = {'', '', '', '', '', ''};
+            app.HzSlider_3.Orientation = 'vertical';
+            app.HzSlider_3.ValueChangedFcn = createCallbackFcn(app, @gainChanged_310_600, true);
+            app.HzSlider_3.MinorTicks = [];
+            app.HzSlider_3.Position = [218 360 3 150];
+
+            % Create KHzLabel_2
+            app.KHzLabel_2 = uilabel(app.AudioEqualizerUIFigure);
+            app.KHzLabel_2.HorizontalAlignment = 'right';
+            app.KHzLabel_2.Position = [380 332 55 15];
+            app.KHzLabel_2.Text = '1 - 3 KHz';
+
+            % Create KHzSlider_13
+            app.KHzSlider_13 = uislider(app.AudioEqualizerUIFigure);
+            app.KHzSlider_13.Limits = [-100 100];
+            app.KHzSlider_13.MajorTicks = [-100 -60 -20 20 60 100];
+            app.KHzSlider_13.MajorTickLabels = {'', '', '', '', '', ''};
+            app.KHzSlider_13.Orientation = 'vertical';
+            app.KHzSlider_13.ValueChangedFcn = createCallbackFcn(app, @gain_changed_1k_3K, true);
+            app.KHzSlider_13.MinorTicks = [];
+            app.KHzSlider_13.Position = [403 360 3 150];
+
+            % Create KHzLabel_3
+            app.KHzLabel_3 = uilabel(app.AudioEqualizerUIFigure);
+            app.KHzLabel_3.HorizontalAlignment = 'right';
+            app.KHzLabel_3.Position = [455 332 55 15];
+            app.KHzLabel_3.Text = '3 - 6 KHz';
+
+            % Create KHzSlider_14
+            app.KHzSlider_14 = uislider(app.AudioEqualizerUIFigure);
+            app.KHzSlider_14.Limits = [-100 100];
+            app.KHzSlider_14.MajorTicks = [-100 -60 -20 20 60 100];
+            app.KHzSlider_14.MajorTickLabels = {'', '', '', '', '', ''};
+            app.KHzSlider_14.Orientation = 'vertical';
+            app.KHzSlider_14.ValueChangedFcn = createCallbackFcn(app, @gainChanged_3k_6k, true);
+            app.KHzSlider_14.MinorTicks = [];
+            app.KHzSlider_14.Position = [477 360 3 150];
+
+            % Create KHzLabel_4
+            app.KHzLabel_4 = uilabel(app.AudioEqualizerUIFigure);
+            app.KHzLabel_4.HorizontalAlignment = 'right';
+            app.KHzLabel_4.Position = [530 332 62 15];
+            app.KHzLabel_4.Text = '6 - 12 KHz';
+
+            % Create KHzSlider_15
+            app.KHzSlider_15 = uislider(app.AudioEqualizerUIFigure);
+            app.KHzSlider_15.Limits = [-100 100];
+            app.KHzSlider_15.MajorTicks = [-100 -60 -20 20 60 100];
+            app.KHzSlider_15.MajorTickLabels = {'', '', '', '', '', ''};
+            app.KHzSlider_15.Orientation = 'vertical';
+            app.KHzSlider_15.ValueChangedFcn = createCallbackFcn(app, @gainChanged_6k_12K, true);
+            app.KHzSlider_15.MinorTicks = [];
+            app.KHzSlider_15.Position = [553 360 3 150];
+
+            % Create KHzLabel_5
+            app.KHzLabel_5 = uilabel(app.AudioEqualizerUIFigure);
+            app.KHzLabel_5.HorizontalAlignment = 'right';
+            app.KHzLabel_5.Position = [612 332 69 15];
+            app.KHzLabel_5.Text = '12 - 14 KHz';
+
+            % Create KHzSlider_16
+            app.KHzSlider_16 = uislider(app.AudioEqualizerUIFigure);
+            app.KHzSlider_16.Limits = [-100 100];
+            app.KHzSlider_16.MajorTickLabels = {'', '', '', '', '', ''};
+            app.KHzSlider_16.Orientation = 'vertical';
+            app.KHzSlider_16.ValueChangedFcn = createCallbackFcn(app, @gainChanged_12k_14k, true);
+            app.KHzSlider_16.MinorTicks = [];
+            app.KHzSlider_16.Position = [642 360 3 150];
+
+            % Create KHzLabel_6
+            app.KHzLabel_6 = uilabel(app.AudioEqualizerUIFigure);
+            app.KHzLabel_6.HorizontalAlignment = 'right';
+            app.KHzLabel_6.Position = [701 332 69 15];
+            app.KHzLabel_6.Text = '14 - 16 KHz';
+
+            % Create KHzSlider_17
+            app.KHzSlider_17 = uislider(app.AudioEqualizerUIFigure);
+            app.KHzSlider_17.Limits = [-100 100];
+            app.KHzSlider_17.MajorTickLabels = {'', '', '', '', '', ''};
+            app.KHzSlider_17.Orientation = 'vertical';
+            app.KHzSlider_17.ValueChangedFcn = createCallbackFcn(app, @gainChanged_14k_16k, true);
+            app.KHzSlider_17.MinorTicks = [];
+            app.KHzSlider_17.Position = [731 360 3 150];
+
+            % Create TabGroup
+            app.TabGroup = uitabgroup(app.AudioEqualizerUIFigure);
+            app.TabGroup.Position = [1 2 780 320];
+
+            % Create OutputResponseTab
+            app.OutputResponseTab = uitab(app.TabGroup);
+            app.OutputResponseTab.Title = 'Output Response';
+            app.OutputResponseTab.BackgroundColor = [1 1 1];
+
+            % Create OutputTimeRespAxes
+            app.OutputTimeRespAxes = uiaxes(app.OutputResponseTab);
+            title(app.OutputTimeRespAxes, 'Time Response')
+            xlabel(app.OutputTimeRespAxes, 'Time (t)')
+            ylabel(app.OutputTimeRespAxes, 'F(t)')
+            app.OutputTimeRespAxes.Box = 'on';
+            app.OutputTimeRespAxes.XGrid = 'on';
+            app.OutputTimeRespAxes.YGrid = 'on';
+            app.OutputTimeRespAxes.Position = [1 6 380 290];
+
+            % Create OutputFreqRespAxes
+            app.OutputFreqRespAxes = uiaxes(app.OutputResponseTab);
+            title(app.OutputFreqRespAxes, 'Frequncy Response')
+            xlabel(app.OutputFreqRespAxes, 'Frequency (w)')
+            ylabel(app.OutputFreqRespAxes, 'F(w)')
+            app.OutputFreqRespAxes.Box = 'on';
+            app.OutputFreqRespAxes.XGrid = 'on';
+            app.OutputFreqRespAxes.YGrid = 'on';
+            app.OutputFreqRespAxes.Position = [381 6 400 290];
+
+            % Create PerBandResponseTab
+            app.PerBandResponseTab = uitab(app.TabGroup);
+            app.PerBandResponseTab.Title = 'Per Band Response';
+
+            % Create BandDropDownLabel
+            app.BandDropDownLabel = uilabel(app.PerBandResponseTab);
+            app.BandDropDownLabel.HorizontalAlignment = 'right';
+            app.BandDropDownLabel.Position = [622 270 34 15];
+            app.BandDropDownLabel.Text = 'Band';
+
+            % Create PerBandRespBandSelector
+            app.PerBandRespBandSelector = uidropdown(app.PerBandResponseTab);
+            app.PerBandRespBandSelector.Items = {'0 - 170 Hz', '170 - 310 Hz', '310 - 600 Hz', '600 - 1000 Hz', '1 - 3 KHz', '3 - 6 KHz', '6 - 12 KHz', '12 - 14 KHz', '14 - 16 KHz'};
+            app.PerBandRespBandSelector.ValueChangedFcn = createCallbackFcn(app, @perBandRespBandSelectorChanged, true);
+            app.PerBandRespBandSelector.Position = [671 266 100 22];
+            app.PerBandRespBandSelector.Value = '0 - 170 Hz';
+
+            % Create PerBandTimeRespAxes
+            app.PerBandTimeRespAxes = uiaxes(app.PerBandResponseTab);
+            title(app.PerBandTimeRespAxes, 'Time Response')
+            xlabel(app.PerBandTimeRespAxes, 'Time (t)')
+            ylabel(app.PerBandTimeRespAxes, 'F(t)')
+            app.PerBandTimeRespAxes.Box = 'on';
+            app.PerBandTimeRespAxes.XGrid = 'on';
+            app.PerBandTimeRespAxes.YGrid = 'on';
+            app.PerBandTimeRespAxes.Position = [0 5 401 251];
+
+            % Create PerBandFreqRespAxes
+            app.PerBandFreqRespAxes = uiaxes(app.PerBandResponseTab);
+            title(app.PerBandFreqRespAxes, 'Frequency Response')
+            xlabel(app.PerBandFreqRespAxes, 'Frequency (w)')
+            ylabel(app.PerBandFreqRespAxes, 'F(w)')
+            app.PerBandFreqRespAxes.Box = 'on';
+            app.PerBandFreqRespAxes.XGrid = 'on';
+            app.PerBandFreqRespAxes.YGrid = 'on';
+            app.PerBandFreqRespAxes.Position = [401 6 380 250];
+
+            % Create ApplyChangesButton
+            app.ApplyChangesButton = uibutton(app.AudioEqualizerUIFigure, 'push');
+            app.ApplyChangesButton.ButtonPushedFcn = createCallbackFcn(app, @applyChanges, true);
+            app.ApplyChangesButton.Position = [403 530 100 22];
+            app.ApplyChangesButton.Text = 'Apply Changes';
+        end
+    end
+
+    methods (Access = public)
+
+        % Construct app
+        function app = app1
+
+            % Create and configure components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.AudioEqualizerUIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.AudioEqualizerUIFigure)
+        end
+    end
+end]]></w:t></w:r></w:p></w:body></w:document>
